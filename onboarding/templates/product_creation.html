@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Product</title>
+    <style>
+        /* Top bar style */
+        .topbar {
+            background-color: #f0f0f0;
+            padding: 10px 20px;
+            position: fixed;
+            width: 97%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .centered-content {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        /* SidebarStyle */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 90px;
+            left: 0;
+            background-color: #f0f0f0;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+        .sidebar a:hover {
+            background-color: #ddd;
+        }
+
+
+        .content {
+    margin: 90px 20px 20px 270px;
+    padding: 20px;
+    width: calc(100% - 270px);
+    box-sizing: border-box;
+}
+
+
+    </style>
+</head>
+<body>
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="centered-content">
+            <h1>Add Product</h1>
+        </div>
+        <div class="actions" style="margin-left: 10px;">
+            <button onclick="window.location.reload();">Refresh</button>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'category' %}" > Category</a>
+        <a href="{% url 'product' %}" >Product</a>
+        <a href="{% url 'add_product' %}" >Upload/Download Products</a>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+    <div class="content">
+            <!-- Product Form -->
+        <form id="productForm" method="post" action="{% url 'product' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="name">Name:</label>
+            <input type="text" name="name" id="name" required><br><br>
+
+            <label for="code">Code:</label>
+            <input type="text" name="code" id="code" required><br><br>
+
+            <label for="description">Description:</label><br>
+            <textarea name="description" id="description" required></textarea><br><br>
+
+            <label for="price">Price:</label>
+            <input type="number" name="price" id="price" required><br><br>
+
+            <label for="category">Category:</label>
+            <select name="category" id="category" required>
+                <option value="">All Categories</option>
+
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="image">Image:</label>
+            <input type="file" name="image" id="image"><br><br>
+
+            <button type="submit">Save</button>
+        </form>
+        <script>
+            document.getElementById("productForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                var formData = new FormData(this);
+
+                fetch(this.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        throw new Error("Failed to save product.");
+                    }
+                })
+                .then(message => {
+                    alert(message);
+
+                    window.location.href = "{% url 'product' %}";
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+            });
+        </script>
+
+    </div>
+</body>
+</html>

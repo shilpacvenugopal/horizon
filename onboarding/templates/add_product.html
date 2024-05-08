@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload/Download Products</title>
+    <style>
+        /*  top bar styling */
+        .topbar {
+            background-color: #f0f0f0;
+            padding: 10px 1px;
+            position: fixed;
+            width: 99%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .centered-content {
+            flex-grow: 1;
+            text-align: center;
+        }
+        /* sidebar  styling*/
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 90px;
+            left: 0;
+            background-color: #f0f0f0;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+        .sidebar a:hover {
+            background-color: #ddd;
+        }
+
+        /* main content  style*/
+        .content {
+            margin-left: 300px;
+            margin-top: 90px;
+            padding: 20px;
+        }
+        /* table   style*/
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background-color: #6c757d;
+            color: #fff;
+        }
+        .success-table {
+            margin-top: 10px;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .success-header {
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .success-message {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="centered-content">
+            <h1>Upload/Download Products</h1>
+        </div>
+        <div class="actions" style="margin-left: 100px;">
+            <button onclick="window.location.reload();">Refresh</button>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'category' %}" > Category</a>
+        <a href="{% url 'product' %}" >Product</a>
+        <a href="{% url 'add_product' %}" >Upload/Download Products</a>
+    </div>
+
+    <!-- Main content -->
+    <div class="content">
+        <div>
+            <h2>Sample Template</h2>
+            <h5>Download Sample Template from here: <a href="{% url 'export_csv_template' %}" download="product.csv">Download</a></h5>
+        </div>
+        <hr>
+        <div>
+            <h2>Upload products through csv files</h2>
+            <form id="importForm" enctype="multipart/form-data" action="{% url 'import_product' %}" method="POST">
+                {% csrf_token %}
+                <input type="file" name="file" accept=".csv, .xlsx" required>
+                <button type="submit">Import</button>
+            </form>
+            <br>
+            <div id="importResult">
+            </div>
+        </div>
+
+        <script>
+            document.getElementById("importForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+                var form = event.target;
+                var formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        var tableHTML = `<table class="success-table"><thead><tr><th class="success-header">SUCCESS!</th></tr></thead><tbody><tr><td class="success-message">${data.message}</td></tr></tbody></table>`;
+                        document.getElementById("importResult").innerHTML = tableHTML;
+                    } else if (data.failed) {
+                        var tableHTML = '<table><thead><tr><th>Name</th><th>Error Message</th></tr></thead><tbody>';
+                        data.failed.forEach(item => {
+                            tableHTML += `<tr><td>${item.name}</td><td>${item.msg}</td></tr>`;
+                        });
+                        tableHTML += '</tbody></table>';
+                        document.getElementById("importResult").innerHTML = tableHTML;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById("importResult").innerText = 'An error occurred while importing products.';
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

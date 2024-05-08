@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List</title>
+    <style>
+        /* Styles for top bar */
+        .topbar {
+            background-color: #f0f0f0;
+            padding: 10px 20px;
+            position: fixed;
+            width: 97%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .centered-content {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        /* Styles for the sidebar */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 90px;
+            left: 0;
+            background-color: #f0f0f0;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+        .sidebar a:hover {
+            background-color: #ddd;
+        }
+
+        /* Styles for main content */
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        /* pagination */
+        .pagination-container {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .pagination {
+            display: inline-block;
+        }
+        .pagination a {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+            background-color: #f2f2f2;
+            text-decoration: none;
+        }
+        .pagination a.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .action-buttons {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.action-buttons button {
+    margin-left: 10px;
+}
+    </style>
+</head>
+<body>
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="centered-content">
+            <h1>Product List</h1>
+        </div>
+        <div class="actions" style="margin-left: 10px;">
+            <button onclick="window.location.reload();">Refresh</button>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'category' %}" > Category</a>
+        <a href="{% url 'product' %}" >Product</a>
+        <a href="{% url 'add_product' %}" >Upload/Download Products</a>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="action-buttons">
+            <button onclick="addProduct()">Add</button>
+        <button onclick="deleteProduct()">Delete</button>
+            <br>
+
+        </div>
+
+
+        <form method="get">
+            <label for="search">Search:</label>
+            <input type="text" name="search" id="search" value="{{ request.GET.search }}">
+            <input type="submit" value="Search">
+        </form>
+
+        <!-- Category Filter -->
+        <form method="get">
+            <label for="category_id">Category:</label>
+            <select name="category_id" id="category_id">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% ifequal category.id request.GET.category_id %}selected{% endifequal %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Filter">
+        </form>
+        <br>
+
+        <!-- Product List -->
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Image URL</th>
+            </tr>
+            {% for product in products %}
+                <tr>
+                    <td><input type="checkbox" name="product" value="{{ product.id }}"></td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.code }}</td>
+                    <td>{{ product.price }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>
+                        <a href="{{ product.image_url }}" target="_blank">{{ product.image_url }}</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3">No products found.</td></tr>
+            {% endfor %}
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="pagination">
+                {% if pagination.has_previous %}
+                    <a href="?page={{ pagination.current_page|add:"-1" }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}">&laquo; Previous</a>
+                {% endif %}
+                {% for num in pagination.paginator.page_range %}
+                    {% if num == pagination.current_page %}
+                        <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" class="active">{{ num }}</a>
+                    {% else %}
+                        <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                    <a href="?page={{ pagination.current_page|add:"1" }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}">Next &raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+     <!-- Add and delete buttons -->
+
+    <script>
+        function addProduct() {
+        window.location.href = "{% url 'product_creation' %}";
+    }
+        function deleteProduct() {
+            var selectedProduct = document.querySelector('input[name="product"]:checked');
+            if (!selectedProduct) {
+                alert("Please select a product to delete.");
+            } else {
+                var confirmDelete = confirm("Are you sure you want to delete the selected product?");
+                if (confirmDelete) {
+                    var productId = selectedProduct.value;
+                    fetch("{% url 'product' %}?id=" + productId, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            response.json().then(data => {
+                                alert(data.message);
+                                window.location.href = "{% url 'product' %}";
+                            });
+                        } else {
+                            alert("Failed to delete product.");
+                        }
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("An error occurred while deleting product.");
+                        });
+
+                }
+            }
+        }
+    </script>
+
+
+</body>
+</html>
