@@ -1,6 +1,8 @@
 from rest_framework.response import Response
 from django.shortcuts import render
 from django.conf import settings
+from django.core.files import File
+
 from rest_framework.views import APIView
 from django.core.files.base import ContentFile
 from .models import Product, Category
@@ -170,7 +172,7 @@ class ProductUploadAPIView(APIView):
             category = row.get('category')
             category_obj=Category.objects.filter(name__iexact=category).first()
             if category_obj:
-                product.category = category_obj
+                category = category_obj
             else:
                 error_message.append('category not found')
             product.name = row.get('name')
@@ -186,28 +188,20 @@ class ProductUploadAPIView(APIView):
             product.code = row.get('code')
             product.description = row.get('description')
             product.price = row.get('price')
+            image_path = row.get('image_path')
+                product = Product.objects.create(
+                name=name,
+                code=code,
+                description=description,
+                price=price,
+                category=category
+            )
+            # Handle image
             if image_path:
-                image_filename = os.path.basename(image_path)
+               image_file = File(open(image_path, 'rb'))
 
-                # Construct the server image path
-                image_directory_server = os.path.join(settings.MEDIA_ROOT)
-                server_image_path = os.path.join(image_directory_server, image_filename)
-
-                # Copy the image file from local path to server
-                shutil.copyfile(image_path, server_image_path)
-
-                # Check if the image file was successfully copied
-                if os.path.exists(server_image_path):
-                    # Create a Product instance
-                    # Assuming you have an 'image' field in your Product model
-                    # Save the image path to the 'image' field
-                    product.image = os.path.join(settings.MEDIA_URL, image_filename)
-
-                    # Save the product instance
-                    product.save()
-
-
-            product.save()
+            # Save the image to the product
+            product.image.save(Path(image_path).name, image_file, save=True)
         if len(failed) > 0:
             return Response({"failed":failed,"csv_error_message":csv_errors,"csv_headers":self.csv_headers()})
         return Response({'message': 'Products uploaded successfully'}, status=201)
