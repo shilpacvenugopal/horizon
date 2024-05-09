@@ -175,7 +175,7 @@ class ProductUploadAPIView(APIView):
                 category = category_obj
             else:
                 error_message.append('category not found')
-            product.name = row.get('name')
+            name = row.get('name')
             if Product.objects.filter(code=row.get('code')).first():
                error_message.append('code was already added before')
             if Product.objects.filter(code=row.get('code'),deleted_at=None).first():
@@ -185,9 +185,9 @@ class ProductUploadAPIView(APIView):
                 failed.append({'name': row.get('name'), 'msg': ", ".join(error_message)})
                 csv_errors.append(self.csv_error_reason(row.get('name'),error_message))
                 continue
-            product.code = row.get('code')
-            product.description = row.get('description')
-            product.price = row.get('price')
+            code = row.get('code')
+            description = row.get('description')
+            price = row.get('price')
             image_path = row.get('image_path')
             product = Product.objects.create(
                 name=name,
