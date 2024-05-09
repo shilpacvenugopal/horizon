@@ -176,7 +176,7 @@ class ProductUploadAPIView(APIView):
                error_message.append('code already exist in the table')
             image_path = row.get('image_path')
             if image_path:
-                 if os.path.exists(image_path):
+                if os.path.exists(image_path):
                     image_name = os.path.basename(image_path)
                     with open(image_path, 'rb') as image_file:
                         product.image.save(image_name, image_file, save=True)
