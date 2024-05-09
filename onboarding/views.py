@@ -185,22 +185,25 @@ class ProductUploadAPIView(APIView):
             product.code = row.get('code')
             product.description = row.get('description')
             product.price = row.get('price')
-            destination_directory=os.path.join(settings.MEDIA_ROOT, 'product_image/')
-            print(destination_directory)
-            destination_path = os.path.join(destination_directory, image_name)
+            if image_path:
+                print(image_file)
+                image_name = os.path.basename(image_path)
+                destination_directory=os.path.join(settings.MEDIA_ROOT, 'product_image/')
+                print(destination_directory)
+                destination_path = os.path.join(destination_directory, image_name)
 
-            # Copy the image file from local to server
-            try:
-                shutil.copy(image_path, destination_path)
-                print("Image copied successfully!")
+                # Copy the image file from local to server
+                try:
+                    shutil.copy(image_path, destination_path)
+                    print("Image copied successfully!")
 
-                # Open the copied image file for reading
-                with open(destination_path, 'rb') as image_file:
-                    product.image.save(image_name, image_file, save=True)
+                    # Open the copied image file for reading
+                    with open(destination_path, 'rb') as image_file:
+                        product.image.save(image_name, image_file, save=True)
 
-                print("Image saved in the database.")
-            except Exception as e:
-                print(f"Failed to copy image: {e}")
+                    print("Image saved in the database.")
+                except Exception as e:
+                    print(f"Failed to copy image: {e}")
             product.save()
         if len(failed) > 0:
             return Response({"failed":failed,"csv_error_message":csv_errors,"csv_headers":self.csv_headers()})
