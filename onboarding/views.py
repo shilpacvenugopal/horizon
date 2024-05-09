@@ -186,7 +186,6 @@ class ProductUploadAPIView(APIView):
             product.description = row.get('description')
             product.price = row.get('price')
             if image_path:
-                print(image_file)
                 image_name = os.path.basename(image_path)
                 destination_directory=os.path.join(settings.MEDIA_ROOT, 'product_image/')
                 print(destination_directory)
