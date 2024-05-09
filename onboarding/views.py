@@ -196,9 +196,11 @@ class ProductUploadAPIView(APIView):
                 price=price,
                 category=category
             )
-            # Handle image
             if image_path:
-               image_file = File(open(image_path, 'rb'))
+                image_name = os.path.basename(image_path)
+                image_file = open(image_path, 'rb')
+                product.image.save(image_name, image_file, save=True)
+                image_file.close()
 
             # Save the image to the product
             product.image.save(Path(image_path).name, image_file, save=True)
@@ -214,7 +216,7 @@ class ProductUploadAPIView(APIView):
 
     def csv_headers(self):
         return  [
-                    'name','code','description','price','category','image_path'
+                    'name','code','description','price','category'
                 ]
 
 #Export sample template from Product
