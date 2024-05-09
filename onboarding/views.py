@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from django.shortcuts import render
+from django.conf import settings
 from rest_framework.views import APIView
 from .models import Product, Category
 from django.db.models import Q
