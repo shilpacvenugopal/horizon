@@ -189,7 +189,7 @@ class ProductUploadAPIView(APIView):
             product.description = row.get('description')
             product.price = row.get('price')
             image_path = row.get('image_path')
-                product = Product.objects.create(
+            product = Product.objects.create(
                 name=name,
                 code=code,
                 description=description,
