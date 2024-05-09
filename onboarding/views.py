@@ -182,7 +182,12 @@ class ProductUploadAPIView(APIView):
             product.code = row.get('code')
             product.description = row.get('description')
             product.price = row.get('price')
-            product.image=image_path
+            if image_path:
+                image_name = os.path.basename(image_path)
+                image_file = open(image_path, 'rb')
+                product.image.save(image_name, image_file, save=True)
+                image_file.close()
+            product.save()
             product.save()
         if len(failed) > 0:
             return Response({"failed":failed,"csv_error_message":csv_errors,"csv_headers":self.csv_headers()})
