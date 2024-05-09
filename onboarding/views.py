@@ -187,18 +187,24 @@ class ProductUploadAPIView(APIView):
             product.description = row.get('description')
             product.price = row.get('price')
             if image_path:
-                image_directory_server = os.path.join(settings.MEDIA_ROOT)  # Directory where images are stored on the server
-                image_path_server = os.path.join(image_directory_server, image_filename)
-                shutil.copyfile(local_image_path, server_image_path)
-                if os.path.exists(image_path):
-                    # Open the image file and read its content
-                    with open(image_path, 'rb') as file:
-                        file_content = file.read()
+                image_filename = os.path.basename(image_path)
 
-                    # Create an instance of the Product model
-]
-                    # Save the image content to the Product model's image field
-                    product.image.save(os.path.basename(image_path), ContentFile(file_content))
+                # Construct the server image path
+                image_directory_server = os.path.join(settings.MEDIA_ROOT)
+                server_image_path = os.path.join(image_directory_server, image_filename)
+
+                # Copy the image file from local path to server
+                shutil.copyfile(image_path, server_image_path)
+
+                # Check if the image file was successfully copied
+                if os.path.exists(server_image_path):
+                    # Create a Product instance
+                    # Assuming you have an 'image' field in your Product model
+                    # Save the image path to the 'image' field
+                    product.image = os.path.join(settings.MEDIA_URL, image_filename)
+
+                    # Save the product instance
+                    product.save()
 
 
             product.save()
