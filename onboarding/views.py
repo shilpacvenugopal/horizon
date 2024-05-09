@@ -187,14 +187,13 @@ class ProductUploadAPIView(APIView):
             product.description = row.get('description')
             product.price = row.get('price')
             if image_path:
-                image_name = os.path.basename(image_path)
-                server_image_path = os.path.join('/media/product_images', os.path.basename(image_path))
-
-                with open(server_image_path, 'rb') as file:
-                    file_content = file.read()
+                if os.path.exists(image_path):
+                    # Open the image file and read its content
+                    with open(image_path, 'rb') as file:
+                        file_content = file.read()
 
                 # Copy the image file from local to server
-                product.image.save(os.path.basename(server_image_path), ContentFile(file_content))
+                        product.image.save(os.path.basename(image_path), ContentFile(file_content))
 
             product.save()
         if len(failed) > 0:
