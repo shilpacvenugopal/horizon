@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from django.shortcuts import render
 from django.conf import settings
 from rest_framework.views import APIView
+from django.core.files.base import ContentFile
 from .models import Product, Category
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -187,22 +188,12 @@ class ProductUploadAPIView(APIView):
             product.price = row.get('price')
             if image_path:
                 image_name = os.path.basename(image_path)
-                destination_directory=os.path.join(settings.MEDIA_ROOT, 'product_image/')
-                print(destination_directory)
-                destination_path = os.path.join(destination_directory, image_name)
+                with open(image_path, 'rb') as file:
+                    file_content = file.read()
 
                 # Copy the image file from local to server
-                try:
-                    shutil.copy(image_path, destination_path)
-                    print("Image copied successfully!")
+                product.image.save(os.path.basename(image_path), ContentFile(file_content))
 
-                    # Open the copied image file for reading
-                    with open(destination_path, 'rb') as image_file:
-                        product.image.save(image_name, image_file, save=True)
-
-                    print("Image saved in the database.")
-                except Exception as e:
-                    print(f"Failed to copy image: {e}")
             product.save()
         if len(failed) > 0:
             return Response({"failed":failed,"csv_error_message":csv_errors,"csv_headers":self.csv_headers()})
