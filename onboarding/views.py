@@ -175,13 +175,6 @@ class ProductUploadAPIView(APIView):
             if Product.objects.filter(code=row.get('code'),deleted_at=None).first():
                error_message.append('code already exist in the table')
             image_path = row.get('image_path')
-            if image_path:
-                if os.path.exists(image_path):
-                    image_name = os.path.basename(image_path)
-                    with open(image_path, 'rb') as image_file:
-                        product.image.save(image_name, image_file, save=True)
-                else:
-                    error_message.append('Image file not found at the specified path')
             if error_message:
                 failed.append({'name': row.get('name'), 'msg': ", ".join(error_message)})
                 csv_errors.append(self.csv_error_reason(row.get('name'),error_message))
@@ -189,8 +182,7 @@ class ProductUploadAPIView(APIView):
             product.code = row.get('code')
             product.description = row.get('description')
             product.price = row.get('price')
-
-
+            product.image=image_path
             product.save()
         if len(failed) > 0:
             return Response({"failed":failed,"csv_error_message":csv_errors,"csv_headers":self.csv_headers()})
