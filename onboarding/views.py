@@ -192,7 +192,7 @@ class ProductUploadAPIView(APIView):
                     file_content = file.read()
 
                 # Copy the image file from local to server
-                product.image.save(os.path.basename(image_path), ContentFile(file_content))
+                product.image.save(image_path, ContentFile(file_content))
 
             product.save()
         if len(failed) > 0:
