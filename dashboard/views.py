@@ -18,7 +18,6 @@ def register(request):
             return render(request, 'register.html', {'error_message': error_message})
 
         user = Users.objects.create_user(username=username, password=password, email=email, user_type=user_type, middle_name=middle_name)
-        messages.success(request, 'Registration successful. Please login.')
         return redirect('login')
 
     else:
