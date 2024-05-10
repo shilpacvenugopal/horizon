@@ -47,14 +47,29 @@ Follow these steps to set up the Horizon marketplace project on your local machi
    touch .env
    ```
    - copy content in .env_example file and make neccessary changes
+   - Here used database url for connection with database can also use:
+   -  ```bash
+     DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('NAME')   ##change the db name
+        'USER': os.getenv('USER')
+        'PASSWORD':os.getenv('PASSWORD')
+        'HOST': os.getenv('HOST')
+        'PORT':os.getenv('PORT')
+    }
+   }
+      ```
 
-6. **Run Migrations:**
+     Then add this part in setting.py and also add this details in the .env file also.
+     
+7. **Run Migrations:**
 
    ```bash
    python manage.py migrate
    ```
 
-7. **Create Superuser (Admin User):**
+8. **Create Superuser (Admin User):**
 
    ```bash
    python manage.py createsuperuser
@@ -62,7 +77,7 @@ Follow these steps to set up the Horizon marketplace project on your local machi
 
    Follow the prompts to create an admin user.
 
-8. **Run the Development Server:**
+9. **Run the Development Server:**
 
    ```bash
    python manage.py runserver
@@ -71,7 +86,7 @@ Follow these steps to set up the Horizon marketplace project on your local machi
    The project will be accessible at [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
 
 
-9. **Access the Dashboard Interface:**
+10. **Access the Dashboard Interface:**
 
     - Visit [http://127.0.0.1:8000/dashboard/register/](http://127.0.0.1:8000/dashboard/register/)
 
