@@ -48,17 +48,17 @@ Follow these steps to set up the Horizon marketplace project on your local machi
    ```
    - copy content in .env_example file and make neccessary changes
    - Here used database url for connection with database can also use:
-   -  ```bash
-     DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('NAME')   ##change the db name
-        'USER': os.getenv('USER')
-        'PASSWORD':os.getenv('PASSWORD')
-        'HOST': os.getenv('HOST')
-        'PORT':os.getenv('PORT')
-    }
-   }
+    ```bash
+           DATABASES = {
+          'default': {
+              'ENGINE': 'django.db.backends.postgresql',
+              'NAME': os.getenv('NAME')  
+              'USER': os.getenv('USER')
+              'PASSWORD':os.getenv('PASSWORD')
+              'HOST': os.getenv('HOST')
+              'PORT':os.getenv('PORT')
+          }
+         }
       ```
 
      Then add this part in setting.py and also add this details in the .env file also.
